@@ -5,6 +5,7 @@
 package sql;
 
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -28,8 +29,58 @@ public class Pessoas extends javax.swing.JFrame {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
     
+    private void carregarPessoas() {
+        DefaultTableModel modelo = new DefaultTableModel(
+            new Object[]{"ID", "Nome", "CPF", "Email", "Telefone"}, 0
+        );
+
+        String sql = "SELECT id, nome, cpf, email, telefone FROM pessoa";
+
+        try (Connection conn = conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                modelo.addRow(new Object[]{
+                    rs.getInt("id"),
+                    rs.getString("nome"),
+                    rs.getString("cpf"),
+                    rs.getString("email"),
+                    rs.getString("telefone")
+                });
+            }
+            jTable1.setModel(modelo);
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Erro ao carregar pessoas: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
     public Pessoas() {
         initComponents();
+        carregarPessoas();
+        
+        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getClickCount() == 2) {
+                    int linhaSelecionada = jTable1.getSelectedRow();
+                    
+                    if (linhaSelecionada != -1) {
+                        String nome = jTable1.getValueAt(linhaSelecionada, 1).toString();
+                        String cpf = jTable1.getValueAt(linhaSelecionada, 2).toString();
+                        String email = jTable1.getValueAt(linhaSelecionada, 3).toString();
+                        String telefone = jTable1.getValueAt(linhaSelecionada, 4).toString();
+                        
+                        NomePessoa.setText(nome);
+                        CpfPessoa.setText(cpf);
+                        EmailPessoa.setText(email);
+                        TelefonePessoa.setText(telefone);
+                    }
+                }
+            }
+        });
+        jTable1.setDefaultEditor(Object.class, null);
     }
 
     private void limparCamposTexto() {
@@ -53,10 +104,11 @@ public class Pessoas extends javax.swing.JFrame {
         EmailPessoa = new javax.swing.JTextField();
         TelefonePessoa = new javax.swing.JTextField();
         Cadastrar = new javax.swing.JButton();
-        Buscar = new javax.swing.JButton();
-        Limpar = new javax.swing.JButton();
+        Excluir = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        Voltar = new javax.swing.JButton();
+        Atualizar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -79,11 +131,8 @@ public class Pessoas extends javax.swing.JFrame {
         Cadastrar.setText("Cadastrar");
         Cadastrar.addActionListener(this::CadastrarActionPerformed);
 
-        Buscar.setText("Buscar");
-        Buscar.addActionListener(this::BuscarActionPerformed);
-
-        Limpar.setText("Limpar");
-        Limpar.addActionListener(this::LimparActionPerformed);
+        Excluir.setText("Excluir");
+        Excluir.addActionListener(this::ExcluirActionPerformed);
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -98,75 +147,80 @@ public class Pessoas extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(jTable1);
 
+        Voltar.setText("Voltar");
+        Voltar.addActionListener(this::VoltarActionPerformed);
+
+        Atualizar.setText("Atualizar");
+        Atualizar.addActionListener(this::AtualizarActionPerformed);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGap(29, 29, 29)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jLabel4)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(TelefonePessoa))
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jLabel3)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(EmailPessoa))
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jLabel2)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(CpfPessoa))
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jLabel1)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(NomePessoa, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(Voltar)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(29, 29, 29)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(Cadastrar)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(Buscar))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(TelefonePessoa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(EmailPessoa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(CpfPessoa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(NomePessoa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(74, 74, 74)
-                        .addComponent(Limpar)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(Atualizar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(Cadastrar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(Excluir)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 444, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(25, 25, 25)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(NomePessoa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(CpfPessoa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(EmailPessoa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(TelefonePessoa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(Cadastrar)
-                    .addComponent(Buscar))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(Limpar)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 294, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 153, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(NomePessoa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(CpfPessoa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(EmailPessoa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel4)
+                            .addComponent(TelefonePessoa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Cadastrar)
+                            .addComponent(Excluir))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(Atualizar)
+                        .addGap(46, 46, 46)
+                        .addComponent(Voltar))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 294, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
 
     
     private void NomePessoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NomePessoaActionPerformed
@@ -186,53 +240,126 @@ public class Pessoas extends javax.swing.JFrame {
     }//GEN-LAST:event_TelefonePessoaActionPerformed
 
     private void CadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CadastrarActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_CadastrarActionPerformed
+    String nome = NomePessoa.getText().trim();
+    String cpf = CpfPessoa.getText().trim();
+    String email = EmailPessoa.getText().trim();
+    String telefone = TelefonePessoa.getText().trim();
 
-    private void BuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuscarActionPerformed
-        DefaultTableModel modelo = new DefaultTableModel(
-            new Object[]{"ID", "Nome", "CPF", "Email", "Telefone"}, 0
-        );
+    if (nome.isEmpty() || cpf.isEmpty() || email.isEmpty() || telefone.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Preencha todos os campos!", "Aviso", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    String cpfLimpo = cpf.replaceAll("\\D", "");
+    if (cpfLimpo.length() != 11) {
+        JOptionPane.showMessageDialog(this, "CPF inválido! Certifique-se de que o CPF contém 11 dígitos.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    String sqlVerifica = "SELECT COUNT(*) FROM pessoa WHERE cpf = ?";
+    try (Connection conn = conectar(); PreparedStatement stmtVerifica = conn.prepareStatement(sqlVerifica)) {
+        stmtVerifica.setString(1, cpf);
         
-        String termoBusca = NomePessoa.getText().trim();
-        String sql;
+        try (ResultSet rs = stmtVerifica.executeQuery()) {
+            if (rs.next() && rs.getInt(1) > 0) {
+                JOptionPane.showMessageDialog(this, "Já existe uma pessoa cadastrada com este CPF!", "Erro Duplicado", JOptionPane.WARNING_MESSAGE);
+                return; 
+            }
+        }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Erro ao verificar CPF existente: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    String sql = "INSERT INTO pessoa (nome, cpf, email, telefone) VALUES (?, ?, ?, ?)";
+
+    try (Connection conn = conectar(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, nome);
+        stmt.setString(2, cpf);
+        stmt.setString(3, email);
+        stmt.setString(4, telefone);
         
-        if (termoBusca.isEmpty() || termoBusca.equals("jTextField1")) {
-            sql = "SELECT id, nome, cpf, email, telefone FROM pessoa";
-        } else {
-            sql = "SELECT id, nome, cpf, email, telefone FROM pessoa WHERE nome LIKE ?";
+        stmt.executeUpdate();
+        JOptionPane.showMessageDialog(this, "Pessoa cadastrada com sucesso!");
+        
+        limparCamposTexto();
+        carregarPessoas();
+        
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Erro ao cadastrar pessoa: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+    }    }//GEN-LAST:event_CadastrarActionPerformed
+
+    private void ExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExcluirActionPerformed
+      int linhaSelecionada = jTable1.getSelectedRow();
+        
+        if (linhaSelecionada == -1) {
+            JOptionPane.showMessageDialog(this, "Selecione uma pessoa na tabela para excluir!", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
         }
 
+        int idPessoa = (int) jTable1.getValueAt(linhaSelecionada, 0);
+        String sql = "DELETE FROM pessoa WHERE id = ?";
+
         try (Connection conn = conectar(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idPessoa);
+            stmt.executeUpdate();
             
-            if (!termoBusca.isEmpty() && !termoBusca.equals("jTextField1")) {
-                stmt.setString(1, "%" + termoBusca + "%");
-            }
+            JOptionPane.showMessageDialog(this, "Pessoa excluída com sucesso!");
             
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    modelo.addRow(new Object[]{
-                        rs.getInt("id"),
-                        rs.getString("nome"),
-                        rs.getString("cpf"),
-                        rs.getString("email"),
-                        rs.getString("telefone")
-                    });
-                }
-            }
-            jTable1.setModel(modelo);
+            carregarPessoas();
+            limparCamposTexto();
             
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Erro ao consultar dados: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
-        
-    }                                  
-
+            JOptionPane.showMessageDialog(this, "Erro ao excluir pessoa: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     
-    }//GEN-LAST:event_BuscarActionPerformed
+    }//GEN-LAST:event_ExcluirActionPerformed
 
-    private void LimparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LimparActionPerformed
+    private void VoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_VoltarActionPerformed
+this.dispose();
+
+Navegação menuPrincipal = new Navegação();
+menuPrincipal.setLocationRelativeTo(null);
+menuPrincipal.setVisible(true);     }//GEN-LAST:event_VoltarActionPerformed
+
+    private void AtualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AtualizarActionPerformed
+    int linhaSelecionada = jTable1.getSelectedRow();
+    
+    if (linhaSelecionada == -1) {
+        JOptionPane.showMessageDialog(this, "Selecione uma pessoa na tabela para atualizar!", "Aviso", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    int idPessoa = (int) jTable1.getValueAt(linhaSelecionada, 0);
+
+    String nome = NomePessoa.getText().trim();
+    String cpf = CpfPessoa.getText().trim();
+    String email = EmailPessoa.getText().trim();
+    String telefone = TelefonePessoa.getText().trim();
+
+    if (nome.isEmpty() || cpf.isEmpty() || email.isEmpty() || telefone.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Preencha todos os campos!", "Aviso", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    String sql = "UPDATE pessoa SET nome = ?, cpf = ?, email = ?, telefone = ? WHERE id = ?";
+
+    try (Connection conn = conectar(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, nome);
+        stmt.setString(2, cpf);
+        stmt.setString(3, email);
+        stmt.setString(4, telefone);
+        stmt.setInt(5, idPessoa);
+        
+        stmt.executeUpdate();
+        JOptionPane.showMessageDialog(this, "Dados atualizados com sucesso!");
+        
         limparCamposTexto();
-    }//GEN-LAST:event_LimparActionPerformed
+        carregarPessoas();
+        
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Erro ao atualizar pessoa: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+    }    }//GEN-LAST:event_AtualizarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -260,13 +387,14 @@ public class Pessoas extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton Buscar;
+    private javax.swing.JButton Atualizar;
     private javax.swing.JButton Cadastrar;
     private javax.swing.JTextField CpfPessoa;
     private javax.swing.JTextField EmailPessoa;
-    private javax.swing.JButton Limpar;
+    private javax.swing.JButton Excluir;
     private javax.swing.JTextField NomePessoa;
     private javax.swing.JTextField TelefonePessoa;
+    private javax.swing.JButton Voltar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

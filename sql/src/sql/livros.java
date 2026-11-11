@@ -18,11 +18,11 @@ import javax.swing.JOptionPane;
  */
 public class livros extends javax.swing.JFrame {
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(livros.class.getName());
+  private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(livros.class.getName());
 
-    private static final String URL = "jdbc:mysql://localhost:3306/bibliotech?useSSL=false&serverTimezone=UTC";
-    private static final String USER = "root";
-    private static final String PASSWORD = "";
+    private static final String URL = "jdbc:mysql://localhost:3306/bibliotech";
+    private static final String USER = "root"; 
+    private static final String PASSWORD = ""; 
 
     private Connection conectar() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
@@ -34,6 +34,29 @@ public class livros extends javax.swing.JFrame {
      */
     public livros() {
         initComponents();
+        carregarLivros();    
+        
+        TabelaLivros.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getClickCount() == 2) {
+                    int linhaSelecionada = TabelaLivros.getSelectedRow();
+                    
+                    if (linhaSelecionada != -1) {
+                        String id = TabelaLivros.getValueAt(linhaSelecionada, 0).toString();
+                        String titulo = TabelaLivros.getValueAt(linhaSelecionada, 1).toString(); 
+                        String autor = TabelaLivros.getValueAt(linhaSelecionada, 2).toString(); 
+                        String quantidade = TabelaLivros.getValueAt(linhaSelecionada, 3).toString(); 
+                        
+                        TituloLivros.setText(titulo);
+                        AutorLivros.setText(autor);
+                        QuantEstoque.setText(quantidade);
+                    }
+                }
+            }
+        });
+        
+        TabelaLivros.setDefaultEditor(Object.class, null);
     }
     
     // Método auxiliar para carregar os livros na JTable
@@ -90,9 +113,11 @@ public class livros extends javax.swing.JFrame {
         QuantEstoque = new javax.swing.JTextField();
         SalvarLivros = new javax.swing.JButton();
         ExcluirLivros = new javax.swing.JButton();
-        AtualizarLivros = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         TabelaLivros = new javax.swing.JTable();
+        Voltar = new javax.swing.JButton();
+        Atualizar = new javax.swing.JButton();
+        Limpar = new javax.swing.JButton();
 
         jList1.setModel(new javax.swing.AbstractListModel<String>() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
@@ -121,9 +146,6 @@ public class livros extends javax.swing.JFrame {
         ExcluirLivros.setText("Excluir");
         ExcluirLivros.addActionListener(this::ExcluirLivrosActionPerformed);
 
-        AtualizarLivros.setText("Atualizar");
-        AtualizarLivros.addActionListener(this::AtualizarLivrosActionPerformed);
-
         TabelaLivros.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -137,70 +159,88 @@ public class livros extends javax.swing.JFrame {
         ));
         jScrollPane2.setViewportView(TabelaLivros);
 
+        Voltar.setText("Voltar");
+        Voltar.addActionListener(this::VoltarActionPerformed);
+
+        Atualizar.setText("Atualizar");
+        Atualizar.addActionListener(this::AtualizarActionPerformed);
+
+        Limpar.setText("Limpar");
+        Limpar.addActionListener(this::LimparActionPerformed);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(36, 36, 36)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(SalvarLivros)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(ExcluirLivros))
+                        .addGap(36, 36, 36)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(SalvarLivros)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(ExcluirLivros))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(AutorLivros, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(TituloLivros, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(QuantEstoque, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel3))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(Atualizar)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(Limpar))))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(AutorLivros, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(TituloLivros, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(QuantEstoque, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel3))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(46, 46, 46)
-                        .addComponent(AtualizarLivros)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 67, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
+                        .addComponent(Voltar)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 452, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(44, 44, 44))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGap(22, 22, 22)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 354, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(39, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(36, 36, 36)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(TituloLivros, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(AutorLivros, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(36, 36, 36)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(TituloLivros, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(AutorLivros, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabel3))
-                            .addGroup(layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel4)
-                                    .addComponent(QuantEstoque, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(35, 35, 35)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(SalvarLivros)
-                            .addComponent(ExcluirLivros))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(AtualizarLivros))
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel3))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(22, 22, 22)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 354, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(186, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel4)
+                            .addComponent(QuantEstoque, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGap(35, 35, 35)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(SalvarLivros)
+                    .addComponent(ExcluirLivros))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(Atualizar)
+                    .addComponent(Limpar))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(Voltar)
+                .addGap(30, 30, 30))
         );
 
         pack();
@@ -242,13 +282,15 @@ public class livros extends javax.swing.JFrame {
         }     }//GEN-LAST:event_SalvarLivrosActionPerformed
 
     private void ExcluirLivrosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExcluirLivrosActionPerformed
-         int linhaSelecionada = TabelaLivros.getSelectedRow();
+        int linhaSelecionada = TabelaLivros.getSelectedRow();
         
+        // Verifica se o utilizador selecionou alguma linha na tabela
         if (linhaSelecionada == -1) {
             JOptionPane.showMessageDialog(this, "Selecione um livro na tabela para excluir!", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        // Pega o ID do livro (que está na coluna 0 da tabela)
         int idLivro = (int) TabelaLivros.getValueAt(linhaSelecionada, 0);
         String sql = "DELETE FROM livro WHERE id = ?";
 
@@ -257,16 +299,15 @@ public class livros extends javax.swing.JFrame {
             stmt.executeUpdate();
             
             JOptionPane.showMessageDialog(this, "Livro excluído com sucesso!");
+            
+            // Atualiza a tabela de livros e limpa os campos
             carregarLivros();
             limparCampos();
+            
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Erro ao excluir livro: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_ExcluirLivrosActionPerformed
-
-    private void AtualizarLivrosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AtualizarLivrosActionPerformed
- carregarLivros();
-        JOptionPane.showMessageDialog(this, "Lista de livros atualizada!");    }//GEN-LAST:event_AtualizarLivrosActionPerformed
 
     private void AutorLivrosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AutorLivrosActionPerformed
         // TODO add your handling code here:
@@ -275,6 +316,64 @@ public class livros extends javax.swing.JFrame {
     private void QuantEstoqueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_QuantEstoqueActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_QuantEstoqueActionPerformed
+
+    private void VoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_VoltarActionPerformed
+java.awt.Window janelaAtual = javax.swing.SwingUtilities.getWindowAncestor(this);
+    if (janelaAtual != null) {
+        janelaAtual.dispose();
+    }
+    this.dispose();
+    
+    Navegação menuPrincipal = new Navegação();
+    menuPrincipal.setLocationRelativeTo(null);
+    menuPrincipal.setVisible(true);
+    menuPrincipal.setVisible(true);     }//GEN-LAST:event_VoltarActionPerformed
+
+    private void AtualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AtualizarActionPerformed
+int linhaSelecionada = TabelaLivros.getSelectedRow();
+        
+        if (linhaSelecionada == -1) {
+            JOptionPane.showMessageDialog(this, "Selecione um livro na tabela para atualizar!", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int idLivro = (int) TabelaLivros.getValueAt(linhaSelecionada, 0);
+        
+        String titulo = TituloLivros.getText().trim();
+        String autor = AutorLivros.getText().trim();
+        String estoqueStr = QuantEstoque.getText().trim();
+
+        if (titulo.isEmpty() || autor.isEmpty() || estoqueStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Preencha todos os campos!", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            int estoque = Integer.parseInt(estoqueStr);
+            String sql = "UPDATE livro SET titulo = ?, autor = ?, quantidadeEstoque = ? WHERE id = ?";
+
+            try (Connection conn = conectar(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, titulo);
+                stmt.setString(2, autor);
+                stmt.setInt(3, estoque);
+                stmt.setInt(4, idLivro);
+                
+                stmt.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Livro atualizado com sucesso!");
+                
+                limparCampos();
+                carregarLivros();
+            }
+            
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "A quantidade em estoque deve ser um número inteiro válido!", "Erro", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Erro ao atualizar livro: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }    }//GEN-LAST:event_AtualizarActionPerformed
+
+    private void LimparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LimparActionPerformed
+    limparCampos();
+    }//GEN-LAST:event_LimparActionPerformed
 
     /**
      * @param args the command line arguments
@@ -302,13 +401,15 @@ public class livros extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton AtualizarLivros;
+    private javax.swing.JButton Atualizar;
     private javax.swing.JTextField AutorLivros;
     private javax.swing.JButton ExcluirLivros;
+    private javax.swing.JButton Limpar;
     private javax.swing.JTextField QuantEstoque;
     private javax.swing.JButton SalvarLivros;
     private javax.swing.JTable TabelaLivros;
     private javax.swing.JTextField TituloLivros;
+    private javax.swing.JButton Voltar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
