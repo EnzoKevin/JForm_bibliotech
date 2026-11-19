@@ -109,6 +109,7 @@ public class Pessoas extends javax.swing.JFrame {
         jTable1 = new javax.swing.JTable();
         Voltar = new javax.swing.JButton();
         Atualizar = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -153,6 +154,9 @@ public class Pessoas extends javax.swing.JFrame {
         Atualizar.setText("Atualizar");
         Atualizar.addActionListener(this::AtualizarActionPerformed);
 
+        jButton1.setText("Limpar");
+        jButton1.addActionListener(this::jButton1ActionPerformed);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -183,8 +187,10 @@ public class Pessoas extends javax.swing.JFrame {
                             .addComponent(Atualizar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(Cadastrar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(Excluir)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(Excluir)
+                            .addComponent(jButton1))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 444, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
@@ -212,7 +218,9 @@ public class Pessoas extends javax.swing.JFrame {
                             .addComponent(Cadastrar)
                             .addComponent(Excluir))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(Atualizar)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Atualizar)
+                            .addComponent(jButton1))
                         .addGap(46, 46, 46)
                         .addComponent(Voltar))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 294, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -361,6 +369,10 @@ menuPrincipal.setVisible(true);     }//GEN-LAST:event_VoltarActionPerformed
         JOptionPane.showMessageDialog(this, "Erro ao atualizar pessoa: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
     }    }//GEN-LAST:event_AtualizarActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+limparCamposTexto();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -395,6 +407,7 @@ menuPrincipal.setVisible(true);     }//GEN-LAST:event_VoltarActionPerformed
     private javax.swing.JTextField NomePessoa;
     private javax.swing.JTextField TelefonePessoa;
     private javax.swing.JButton Voltar;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

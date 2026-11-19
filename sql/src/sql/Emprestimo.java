@@ -53,7 +53,15 @@ public class Emprestimo extends javax.swing.JPanel {
                     String dataDev = jTable1.getValueAt(linhaSelecionada, 3).toString();
                     String livroNome = jTable1.getValueAt(linhaSelecionada, 4).toString();
                     
-                    CpfField.setText(nomeLeitor);
+                        String cpf = buscarCpfPorNome(nomeLeitor);
+                    if (cpf != null) {
+                        CpfField.setText(cpf);
+                    } else {
+                        CpfField.setText("");
+                        JOptionPane.showMessageDialog(Emprestimo.this,
+                                "CPF não encontrado para o leitor: " + nomeLeitor,
+                                "Aviso", JOptionPane.WARNING_MESSAGE);
+                    }
                     EmprestimoData.setText(dataEmp);
                     DevolucaoData.setText(dataDev);
                     
@@ -110,7 +118,6 @@ public class Emprestimo extends javax.swing.JPanel {
         }
     }
 
-    // Método para procurar o nome da pessoa através do CPF digitado
     private String buscarNomePorCpf(String cpf) {
         String nomePessoa = null;
         String sql = "SELECT nome FROM pessoa WHERE cpf = ?";
@@ -126,6 +133,23 @@ public class Emprestimo extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Erro ao consultar CPF: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
         return nomePessoa;
+    }
+    
+    private String buscarCpfPorNome(String nome) {
+            String cpfPessoa = null;
+    String sql = "SELECT cpf FROM pessoa WHERE nome = ?";
+
+    try (Connection conn = conectar(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, nome);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                cpfPessoa = rs.getString("cpf");
+            }
+        }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Erro ao consultar CPF: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+    }
+    return cpfPessoa;
     }
    
     
